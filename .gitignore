@@ -1,0 +1,11 @@
+*.pptx
+*.aux
+*.log
+*.nav
+*.out
+*.pdf
+*.snm
+*.toc
+*.gz
+*~
+*#
