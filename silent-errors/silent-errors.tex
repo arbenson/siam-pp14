@@ -76,7 +76,9 @@ SIAM PP 2014
 \begin{itemize}
 \setlength{\itemsep}{0.15in}
 \item{Base method $\B$ generates $B_1, B_2, \ldots$}
+\pause
 \item{Auxiliary method $\A$ ``checks'' with $A_1, A_2, \ldots$}
+\pause
 \item{$D_i = ||B_i - A_i||$ abnormal $\to$ possible error}
 \end{itemize}
 \end{frame}
@@ -93,7 +95,9 @@ SIAM PP 2014
 \begin{itemize}
 \setlength{\itemsep}{0.15in}
 \item{Base method $\B$: higher-order scheme (Runge-Kutta 5)}
+\pause
 \item{Auxiliary method $\A$ ``checks'': lower-order scheme (Runge-Kutta 4)}
+\pause
 \item{Want $\A$ needs to be cheap: embedded pairs}
 \end{itemize}
 \end{frame}
@@ -108,8 +112,14 @@ SIAM PP 2014
 \begin{itemize}
 \item Backward / Forward Euler, Richardson scheme
 \item Runge-Kutta 4/5, 2/3
-\item \textcolor{theblue}{Key idea}: Auxiliary method $\A$ re-uses data (and communication) from base method $\B$
+\item Adams-Bashforth 4/5, 2/3
+\item Explicit check on implicit scheme
+\item Extrapolation
 \end{itemize}
+
+\begin{center}
+Auxiliary method $\A$ re-uses data (and communication) from base method $\B$
+\end{center}
 
 \end{frame}
 
@@ -121,6 +131,24 @@ SIAM PP 2014
   \centering
   \includegraphics[scale=0.7]{img/heat_soln_diffs1.eps}
 \end{figure}
+
+\begin{itemize}
+\item Sequence $D_i = \| B_i - A_i \|$: differences between true scheme and checking scheme
+\item Look at jumps
+\item Look at variance
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Detecting errors}
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{img/heat_soln_diffs1.eps}
+\end{figure}
+
+% TODO: Put in error detection algorithm here
 
 \end{frame}
 
@@ -134,11 +162,12 @@ SIAM PP 2014
 \item $\hat{B}_n$ and $\hat{A}_n$ are the outputs of $\B$ and $\A$ when \emph{no fault is injected}
 \end{itemize}
 
-
+\begin{center}
 Local truncation error-normalized error:
 \[
 L_n = \frac{\| B_n - \hat{B}_n \|}{\| \hat{B}_n - \hat{A}_n \|} = \frac{\text{Difference caused by error}}{\text{Estimate of local truncation error}}
 \]
+\end{center}
 
 \end{frame}
 
@@ -153,6 +182,43 @@ u^{\prime\prime}(t) - b(1 - u(t)^2)u^{\prime}(t) + u(t) = 0
 u(0) = 1, \quad u'(0) = 0, \quad t \in [0, T] = [0, 14]
 \]
 
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Detecting errors in Runge-Kutta}
+
+\[
+u^{\prime\prime}(t) - b(1 - u(t)^2)u^{\prime}(t) + u(t) = 0
+\]
+\[
+u(0) = 1, \quad u'(0) = 0, \quad t \in [0, T] = [0, 14]
+\]
+
+\end{frame}
+
+
+%
+\begin{frame}
+\frametitle{Detecting errors in the heat equation}
+
+\[
+u^{\prime\prime}(t) - b(1 - u(t)^2)u^{\prime}(t) + u(t) = 0
+\]
+\[
+u(0) = 1, \quad u'(0) = 0, \quad t \in [0, T] = [0, 14]
+\]
+\end{frame}
+
+
+%
+\begin{frame}
+\frametitle{End}
+
+\begin{itemize}
+\item Austin Benson: arbenson@stanford.edu
+\item Pre-print + code + data: http://stanford.edu/~arbenson
+\end{itemize}
 \end{frame}
 
 \end{document}
