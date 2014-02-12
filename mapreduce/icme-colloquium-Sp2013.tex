@@ -1,0 +1,243 @@
+\documentclass{beamer}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{../arbenson-math}
+\usepackage{dgleich-math}
+\usepackage{wasysym}
+
+\usetheme{boxes}
+\usecolortheme{seahorse}
+
+\setbeamertemplate{frametitle}
+{
+    \nointerlineskip
+    \begin{beamercolorbox}[sep=0.3cm,ht=1.8em,wd=\paperwidth]{frametitle}
+        \vbox{}\vskip-2ex%
+        \strut\insertframetitle\strut \hfill \insertframenumber
+        \vskip-0.8ex%
+    \end{beamercolorbox}
+}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{\insertsection}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\title{Tall-and-skinny Matrix Computations \\
+ in MapReduce}
+\author{
+Austin Benson \\
+Institute for Computational and Mathematical Engineering \\
+Stanford University \\
+\vspace{0.2in}
+SIAM PP 2014 \\
+}
+\date{February 19, 2014}
+\begin{document}
+\maketitle
+
+\begin{frame}
+\frametitle{Tall-and-skinny matrices}
+
+What are tall-and-skinny matrices?
+
+\begin{figure}[h!]
+\centering
+\includegraphics[height=1.5in]{"figs/ts_mat"}
+\end{figure}
+
+$A$ is $m \times n$ and $m >> n$.  \\
+Examples: rows are data samples; blocks of $A$ are images from a video; Krylov subspaces; Unrolled tensors
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Matrix representation}
+Maybe the data is a set of samples
+
+\vspace{0.2in}
+
+\[
+A = \bmat{1.0 & 0.0 \\ 2.4 & 3.7 \\ 0.8 & 4.2 \\ 9.0 & 9.0} \rightarrow \bmat{ (\text{``Apr 26 04:18:49"}, [1.0, 0.0]) \\  (\text{``Apr 26 04:18:52"}, [2.4, 3.7]) \\ (\text{``Apr 26 04:19:12"}, [0.8, 4.2]) \\ (\text{``Apr 26 04:22:33"}, [9.0, 9.0]) }
+\]
+
+\vspace{0.3in}
+(key, value) $\rightarrow$ (timestamp, sample)
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Matrix representation: an example}
+Scientific example: (x, y, z) coordinates and model number: \\
+
+\vspace{0.1in}
+
+\texttt{(\footnotesize{(47570,103.429767811242,0,-16.525510963787,iDV7)}, 
+\scriptsize{[0.00019924 -4.706066e-05 2.875293979e-05 2.456653e-05 -8.436627e-06 -1.508808e-05 3.731976e-06 -1.048795e-05 5.229153e-06 6.323812e-06])}}
+
+\begin{figure}
+        \centering
+	\begin{subfigure}[b]{0.48\textwidth}
+	\centering
+	\includegraphics[height=1.9in]{"figs/pressure"}
+	\end{subfigure}
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+          %(or a blank line to force the subfigure onto a new line)
+	\begin{subfigure}[b]{0.48\textwidth}
+	\centering
+	\includegraphics[height=1.9in]{"figs/leverage3"}
+	\end{subfigure}
+	\caption{Aircraft simulation data.}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Tall-and-skinny QR}
+\begin{figure}
+\centering
+\includegraphics[width=2in]{"figs/ts_qr"}
+\end{figure}
+
+Tall-and-skinny (TS): $m >> n$.  $Q^TQ = I$.
+\end{frame}
+
+\begin{frame}
+\frametitle{TS-QR $\rightarrow$ TS-SVD}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[height=2in]{"figs/ts_qr_svd"}
+\end{figure}
+
+\vspace{0.2in}
+
+$R$ is small, so computing its SVD is cheap.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Why Tall-and-skinny QR and SVD?}
+\begin{enumerate}
+\setlength{\itemsep}{0.05in}
+\item{Regression with many samples}
+\item{Principle Component Analysis (PCA)}
+\item{Model Reduction}
+\end{enumerate}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=3in]{"figs/jet_labelled"}
+\caption{Dynamic mode decomposition of the screech of a jet.
+Joe Nichols, University of Minnesota.}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Communication-avoiding TSQR}
+
+\beqstar
+\mA = \underbrace{\bmat{\mA_1 \\ \mA_2 \\ \mA_3 \\ \mA_4} }_{8n \times 4n}
+&=& \underbrace{\bmat{ \mQ_1 \\ & \mQ_2 \\ & & \mQ_3 \\ & & & \mQ_4 }}_{8n \times 4n}
+      \underbrace{\bmat{ \mR_1 \\ \mR_2 \\ \mR_3 \\ \mR_4}}_{4n \times n} \\
+&=& \overbrace{\underbrace{\bmat{ \mQ_1 \\ & \mQ_2 \\ & & \mQ_3 \\ & & & \mQ_4 }}_{8n \times 4n}
+       \underbrace{\tilde{\mQ}}_{4n \times n}}^{= \mQ} 
+       \quad
+       \vphantom{\bmat{ \mQ_1 \\ & \mQ_2 \\ & & \mQ_3 \\ & & & \mQ_4 }}\underbrace{\mR}_{n \times n}
+\eeqstar
+
+[Demmel, Grigori,  Hoemmen, Langou 2008]
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Communication-avoiding TSQR}
+\[
+\mA = \underbrace{\bmat{\mA_1 \\ \mA_2 \\ \mA_3 \\ \mA_4} }_{8n \times 4n}
+= \underbrace{\bmat{ \mQ_1 \\ & \mQ_2 \\ & & \mQ_3 \\ & & & \mQ_4 }}_{8n \times 4n}
+      \underbrace{\bmat{ \mR_1 \\ \mR_2 \\ \mR_3 \\ \mR_4}}_{4n \times n}
+\]
+
+\vspace{0.4in}
+
+\begin{itemize}
+\item $\mA_i = Q_iR_i$ can be computed in parallel.
+\item Only need $R$ (or $\Sigma$) $\to$ throw out $Q_i$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{MapReduce TSQR}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[height=2in]{"figs/mr_tsqr"}
+\caption{$S^{(1)}$ is the matrix consisting of the rows of all of the $R_i$ factors.  Similarly, $S^{(2)}$ consists of all of the rows of the $R_{2, j}$ factors.}
+\end{figure}
+
+[Constantine and Gleich 2011]
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{MapReduce TSQR: the implementation}
+\lstset{basicstyle=\tiny}
+\lstset{numbers=left}
+\codeblock{code/mrtsqr.py}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{MapReduce TSQR: Getting $Q$}
+We have an efficient way of getting $R$ in $QR$ (and $\Sigma$ in the SVD).  What if I want $Q$ (or my left singular vectors)?
+
+\vspace{0.2in}
+
+\[
+A = QR \rightarrow Q = AR^{-1}
+\]
+
+\vspace{0.2in}
+
+\begin{itemize}
+\item \textcolor{problem}{Problem}:  $Q$ can be far from orthogonal.
+\item \textcolor{theblue}{Numerically stable solution}: more complicated code, $\sim$15\% performance penalty
+[Benson, Gleich, Demmel 2013]
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Stability}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[height=2.5in]{"figs/stability"}
+\end{figure}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Questions}
+
+Questions?
+
+\vspace{0.2in}
+
+\begin{itemize}
+\setlength{\itemsep}{0.1in}
+\item Austin Benson: \texttt{arbenson@stanford.edu}
+\item Code: \url{https://github.com/arbenson/mrtsqr}
+\end{itemize}
+
+\end{frame}
+
+
+\end{document}
