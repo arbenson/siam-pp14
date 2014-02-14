@@ -26,7 +26,7 @@
   \end{frame}
 }
 
-\title{Tall-and-skinny Matrix Computations \\
+\title{Tall-and-skinny matrix computations \\
  in MapReduce}
 \author{
 Austin Benson \\
@@ -49,8 +49,44 @@ What are tall-and-skinny matrices?
 \includegraphics[height=1.5in]{"figs/ts_mat"}
 \end{figure}
 
-$A$ is $m \times n$ and $m >> n$.  \\
-Examples: rows are data samples; blocks of $A$ are images from a video; Krylov subspaces; Unrolled tensors
+\begin{itemize}
+\item $A$ is $m \times n$ and $m \gg n$.
+\item Examples: rows are data samples; blocks of $A$ are images from a video; Krylov subspaces; Unrolled tensors
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Tall-and-skinny matrices}
+
+What are tall-and-skinny matrices?
+
+\begin{figure}[h!]
+\centering
+\includegraphics[height=1.5in]{"figs/ts_mat"}
+\end{figure}
+
+\begin{itemize}
+\item $A$ is $m \times n$ and $m \gg n$.
+\item $O(n^3)$ sequential computation is cheap.
+\item Communicating $O(n^2)$ data to all processes is cheap.
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Matrix representation}
+We have matrices, so what are the key-value pairs?  The key may just be a row identifier:
+
+\vspace{0.2in}
+
+\[
+A = \bmat{1.0 & 0.0 \\ 2.4 & 3.7 \\ 0.8 & 4.2 \\ 9.0 & 9.0} \rightarrow \bmat{ (1, [1.0, 0.0]) \\  (2, [2.4, 3.7]) \\ (3, [0.8, 4.2]) \\ (4, [9.0, 9.0]) }
+\]
+
+\vspace{0.3in}
+(key, value) $\rightarrow$ (row index, row)
 
 \end{frame}
 
@@ -134,6 +170,33 @@ $R$ is small, so computing its SVD is cheap.
 \caption{Dynamic mode decomposition of the screech of a jet.
 Joe Nichols, University of Minnesota.}
 \end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{TS-QR the easy way}
+
+\begin{itemize}
+\item $A^TA = (QR)^T(QR) = R^TR$
+\item $A^TA = \ssum{i=1}{m}{a_i^Ta_i}$ {\quad} ($a_i$ is the $i$-th row).
+\end{itemize}
+
+\lstset{numbers=left}
+\codeblock{code/AtA_simple.py}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{MapReduce $A^TA$}
+
+\begin{itemize}
+\setlength{\itemsep}{0.1in}
+\item \textcolor{problem}{Problem}: $O(m)$ matrix sums on a single reducer.
+\item \textcolor{idea}{Idea}: Local partial sums on the mappers (combiner).
+\end{itemize}
+
+\lstset{numbers=left}
+\codeblock{code/AtA_good.py}
+
 \end{frame}
 
 \begin{frame}
@@ -225,7 +288,7 @@ A = QR \rightarrow Q = AR^{-1}
 
 
 \begin{frame}
-\frametitle{Questions}
+\frametitle{End}
 
 Questions?
 
