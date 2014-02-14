@@ -126,7 +126,9 @@ SIAM PP 2014 \\
 \end{frame}
 
 \begin{frame}
-\frametitle{RK 1/2 $\A/\B$ scheme}
+\frametitle{RK $1/2$ $\A/\B$ scheme}
+
+ODE: $u^{\prime} = f(t, u)$.
 
 \begin{align}
 & \textcolor{blue}{k_1^{\B}} = f(t_n, u_n^{\B}) \nonumber \\
@@ -161,8 +163,8 @@ Want to solve: $u_t = ku_{xx}$ (1D)
 
 \begin{itemize}
 \item Backward / Forward Euler, Richardson / Crank-Nicolson
-\item Runge-Kutta 4/5, 2/3
-\item Adams-Bashforth 4/5, 2/3
+\item Runge-Kutta 2/3, 4/5
+\item Adams-Bashforth linear multipstep method 2/3, 4/5
 \item Explicit check on implicit scheme
 \item Extrapolation
 \end{itemize}
@@ -201,7 +203,7 @@ Want to solve: $u_t = ku_{xx}$ (1D)
 
 \begin{align}
 & D_{n+1} = \| A_{n+1} - B_{n+1} \|_{\infty} \nonumber \\
-& J_{n} = \frac{D_{n+1} - D_n}{D_n}, \quad \text{relative jump} \nonumber \\
+& J_{n+1} = \frac{D_{n+1} - D_n}{D_n}, \quad \text{relative jump} \nonumber \\
 & V_{n+1} = \frac{\text{Var}(D_{n-p+1}, \ldots, D_{n+1})}{\text{Var}(D_{n-p}, \ldots, D_{n})}, \quad \text{variance change} \nonumber
 \end{align}
 
@@ -226,7 +228,6 @@ Want to solve: $u_t = ku_{xx}$ (1D)
                 \texttt{FlagError()} \\
                 \texttt{Move back in time} \\
            }
-      }
      \lIf{$J_{n+1} > \tau_J$}{
         $\tau_J := \Gamma\tau_J$
      }\lElse{
@@ -237,6 +238,7 @@ Want to solve: $u_t = ku_{xx}$ (1D)
      }\lElse{
         $\tau_V := \gamma\tau_V$     
      }     
+      }
   \end{algorithm}
   
   \vspace{0.5cm}
@@ -359,17 +361,6 @@ Multiply one derivative evaluation by $z \sim N(1, 0.1)$
 
 \end{frame}
 
-
-\begin{frame}
-\frametitle{Tardy error detection}
-
-\begin{figure}
-  \includegraphics[scale=0.5]{figs/tardy_detection.eps}
-  \includegraphics[scale=0.5]{figs/tardy_detection_soln.eps}
-\end{figure}
-
-\end{frame}
-
 \begin{frame}
 \frametitle{Key ideas}
 
@@ -395,5 +386,16 @@ Questions?
 \item Pre-print + code + data: \url{http://stanford.edu/~arbenson}
 \end{itemize}
 \end{frame}
+
+\begin{frame}
+\frametitle{Tardy error detection}
+
+\begin{figure}
+  \includegraphics[scale=0.5]{figs/tardy_detection.eps}
+  \includegraphics[scale=0.5]{figs/tardy_detection_soln.eps}
+\end{figure}
+
+\end{frame}
+
 
 \end{document}
