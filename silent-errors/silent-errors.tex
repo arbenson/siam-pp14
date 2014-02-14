@@ -125,6 +125,34 @@ SIAM PP 2014 \\
 
 \end{frame}
 
+\begin{frame}
+\frametitle{RK 1/2 $\A/\B$ scheme}
+
+\begin{align}
+& \textcolor{blue}{k_1^{\B}} = f(t_n, u_n^{\B}) \nonumber \\
+& u^{\B}_{n+1} = u_n^{\B} + hf\left(t_n + h/2, u_n^{\B} + h\textcolor{blue}{k_1^{\B}}/2\right) \nonumber \\
+\text{Re-use \textcolor{blue}{data}!} \nonumber \\
+& u_{n+1}^{\A} = u_n^{\B} + h\textcolor{blue}{k_1^{\B}} \nonumber \\
+& D_{n+1} = \| u_{n+1}^{\A} - u_{n+1}^{\B} \| \nonumber
+\end{align}
+\end{frame}
+
+\begin{frame}
+\frametitle{Forward / Backward Euler $\A/\B$ scheme}
+Want to solve: $u_t = ku_{xx}$ (1D)
+
+\begin{align}
+& AU^{\B}_{n+1} = \textcolor{blue}{U^{\B}_{n}} \nonumber \\
+\text{Re-use \textcolor{blue}{data}!} \nonumber \\
+& U^{\A}_{n+1} = B\textcolor{blue}{U^{\B}_{n}} \nonumber \\
+& D_{n+1} = \| U^{\B}_{n+1} - U^{\A}_{n+1} \| \nonumber
+\end{align}
+
+%Local truncation error: $O(\Delta_t + \Delta_x^2)$
+
+
+\end{frame}
+
 
 
 %
@@ -172,7 +200,7 @@ SIAM PP 2014 \\
 
 
 \begin{align}
-& D_{n+1} = \| A_{n+1} - B_{n+1} \| \nonumber \\
+& D_{n+1} = \| A_{n+1} - B_{n+1} \|_{\infty} \nonumber \\
 & J_{n} = \frac{D_{n+1} - D_n}{D_n}, \quad \text{relative jump} \nonumber \\
 & V_{n+1} = \frac{\text{Var}(D_{n-p+1}, \ldots, D_{n+1})}{\text{Var}(D_{n-p}, \ldots, D_{n})}, \quad \text{variance change} \nonumber
 \end{align}
@@ -237,36 +265,28 @@ L_n = \frac{\| B_n - \hat{B}_n \|}{\| \hat{B}_n - \hat{A}_n \|} \approx \frac{\t
 
 \end{frame}
 
-%
-%\begin{frame}
-%\frametitle{Detecting errors in Adams-Bashforth}
-%
-%\[
-%u^{\prime\prime}(t) - b(1 - u(t)^2)u^{\prime}(t) + u(t) = 0
-%\]
-%\[
-%u(0) = 1, \quad u'(0) = 0, \quad t \in [0, T] = [0, 14]
-%\]
-%
-%\end{frame}
-%
-%%
-%\begin{frame}
-%\frametitle{Detecting errors in Runge-Kutta}
-%
-%\[
-%u^{\prime\prime}(t) - b(1 - u(t)^2)u^{\prime}(t) + u(t) = 0
-%\]
-%\[
-%u(0) = 1, \quad u'(0) = 0, \quad t \in [0, T] = [0, 14]
-%\]
-%
-%\end{frame}
-
-
-%
 \begin{frame}
-\frametitle{Detecting errors in the heat equation}
+\frametitle{Experimental setup}
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.4]{figs/heat_soln_diffs1.eps}
+\end{figure}
+
+\begin{itemize}
+\item Solve equation and artificially inject error at one time step
+\pause
+\item Do this for many trials with different types of errors
+\pause
+\item True positive rate: \#(real errors detected) / \#(trials)
+\pause
+\item False positive rate: \#(non-errors ``detected") / \#(time steps)
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Heat equation}
 
 \begin{itemize}
 \item  $u_t = 0.001u_{xx} + (1 - \sqrt{1 - 4(t - t^2)}) / (2 - 2t)$
@@ -286,7 +306,7 @@ at a single time step
 
 
 \begin{frame}
-\frametitle{Detecting errors in the heat equation}
+\frametitle{Heat equation}
 
 \begin{itemize}
 \item  $u_t = 0.01u_{xx} + q(x, t)$, \quad $q(x, t) = xe^{-t/2}$
@@ -365,6 +385,10 @@ Multiply one derivative evaluation by $z \sim N(1, 0.1)$
 %
 \begin{frame}
 \frametitle{End}
+
+Questions?
+
+\vspace{1cm}
 
 \begin{itemize}
 \item Austin Benson: arbenson@stanford.edu
